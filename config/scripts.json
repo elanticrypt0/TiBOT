@@ -1,0 +1,17 @@
+[
+    {
+        "handler":"hi",
+        "script_path":"scripts/hi.py",
+        "only_admin":false
+    },
+    {
+        "handler":"hi2",
+        "script_path":"scripts/hi2.py",
+        "only_admin":true
+    },
+    {
+        "handler":"info",
+        "script_path":"scripts/info.py",
+        "only_admin":true
+    }
+]

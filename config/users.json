@@ -1,0 +1,12 @@
+[
+    {
+        "username":"admin",
+        "telegram_id":19,
+        "is_admin":true
+    },
+    {
+        "username":"guest",
+        "telegram_id":0,
+        "is_admin":false
+    }
+]

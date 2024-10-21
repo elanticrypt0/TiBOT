@@ -1,0 +1,6 @@
+.env
+*.bin
+build/config/*
+build/scripts/*
+build/*.bin
+
