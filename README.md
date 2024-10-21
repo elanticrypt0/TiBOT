@@ -1,6 +1,6 @@
 # TiBOT
 
-**Telegram interactive BOT** by _elanticrypt0_
+**Telegram interactive BOT**
 
 # Installation
 
