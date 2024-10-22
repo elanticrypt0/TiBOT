@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"tibot/app"
-	"tibot/tibot"
-	"tibot/usermanager"
+	"tibot/src/app"
+	"tibot/src/tibot"
+	"tibot/src/usermanager"
 
 	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
@@ -62,8 +62,8 @@ func main() {
 	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/args`, ibot.Handlers.GetArgs)
 	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/myinfo`, ibot.Handlers.GetUserInfo)
 	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/botinfo`, ibot.Handlers.GetBotInfo)
-	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/py help`, ibot.Handlers.PythonHelp)
-	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/py`, ibot.Handlers.RunPython)
+	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/run help`, ibot.Handlers.PythonHelp)
+	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/run`, ibot.Handlers.RunPython)
 	ibot.AddRule(ibot.GetDefaultHandlerType(), `^/die`, ibot.Handlers.Die)
 
 	ibot.InitRules(tbot)

@@ -2,8 +2,8 @@ package tibot
 
 import (
 	"regexp"
-	"tibot/handlers"
-	"tibot/usermanager"
+	"tibot/src/handlers"
+	"tibot/src/usermanager"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"

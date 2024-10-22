@@ -6,9 +6,9 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"tibot/app"
-	"tibot/pyrunner"
-	"tibot/usermanager"
+	"tibot/src/app"
+	"tibot/src/pyrunner"
+	"tibot/src/usermanager"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
@@ -120,7 +120,7 @@ func (me *Handlers) RunPython(ctx context.Context, b *bot.Bot, update *models.Up
 
 	me.setBotSettings(ctx, b, update)
 
-	me.SendResponseSimple("🐍🐍🐍 Running script 🐍🐍🐍")
+	me.SendResponseSimple("📜 Running script")
 
 	log.Printf("::: Running Script :::\n")
 	log.Printf("Excecuted by User: %q(%s)\n", update.Message.From.Username, userID)
@@ -130,6 +130,7 @@ func (me *Handlers) RunPython(ctx context.Context, b *bot.Bot, update *models.Up
 	if argsQty > 0 {
 		pyr := pyrunner.New()
 		script, err := pyr.GetScript(args[0])
+		me.SendResponseSimple(">>> " + script.Path)
 
 		if err != nil {
 			log.Printf("🛑 Error:\n %s", err)
@@ -145,7 +146,7 @@ func (me *Handlers) RunPython(ctx context.Context, b *bot.Bot, update *models.Up
 		}
 
 		args[0] = script.Path
-		response, err := pyr.RunScript(args)
+		response, err := pyr.RunScript(script.Engine, args)
 
 		if err != nil {
 			log.Printf("🛑 Error: %s", err)
@@ -171,18 +172,13 @@ func (me *Handlers) PythonHelp(ctx context.Context, b *bot.Bot, update *models.U
 
 	me.setBotSettings(ctx, b, update)
 
-	me.SendResponseSimple("🐍🐍🐍 Running python script availables 🐍🐍🐍")
+	me.SendResponseSimple("📜 Script availables")
 
 	pyr := pyrunner.New()
-	scripts, err := pyr.GetScriptsList()
-
-	if err != nil {
-		me.SendResponseSimple(fmt.Sprintf("%s", err))
-	}
 
 	scriptsStr := ""
-	for _, handler := range scripts {
-		scriptsStr += " " + handler + "\n"
+	for _, script := range pyr.Config {
+		scriptsStr += fmt.Sprintf("\n%s (%q)\n", script.Handler, script.Engine)
 	}
 	me.SendResponseSimple(fmt.Sprintf("		%s\n", scriptsStr))
 
