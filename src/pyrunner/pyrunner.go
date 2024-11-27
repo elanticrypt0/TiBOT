@@ -1,9 +1,9 @@
 package pyrunner
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -90,11 +90,7 @@ func (me *PyRunner) RunScript(engine string, params []string) (string, error) {
 }
 
 func (cr *PyRunner) cmdRun(engine string, args []string) (string, error) {
-
-	var outb, errb bytes.Buffer
-	var cmd *exec.Cmd
-
-	// if engine is not python run this otherwise run OS
+	// Si no es Python, usar el manejador de OS
 	if engine != "python" {
 		commandOutput, err := cr.runCommandByOS(args[0], args[1:])
 		if err != nil {
@@ -103,23 +99,53 @@ func (cr *PyRunner) cmdRun(engine string, args []string) (string, error) {
 		return commandOutput, nil
 	}
 
+	// Configurar el comando de Python
 	pythonCommand := os.Getenv("PYTHON_COMMAND")
-	cmd = exec.Command(pythonCommand, args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = &outb
-	cmd.Stderr = &errb
+	cmd := exec.Command(pythonCommand, args...)
 
-	log.Printf("> %s\n", cmd.String())
-	// return cmd.Run()
-
-	err := cmd.Run()
+	// Crear pipes para stdout y stderr
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		// log.Fatal(err.Error())
-		return "", errors.New(errb.String())
+		return "", fmt.Errorf("error creating stdout pipe: %v", err)
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return "", fmt.Errorf("error creating stderr pipe: %v", err)
 	}
 
-	return outb.String(), nil
+	// Iniciar el comando
+	if err := cmd.Start(); err != nil {
+		return "", fmt.Errorf("error starting command: %v", err)
+	}
 
+	// Leer toda la salida
+	stdoutBytes, err := io.ReadAll(stdout)
+	if err != nil {
+		return "", fmt.Errorf("error reading stdout: %v", err)
+	}
+
+	stderrBytes, err := io.ReadAll(stderr)
+	if err != nil {
+		return "", fmt.Errorf("error reading stderr: %v", err)
+	}
+
+	// Esperar a que el comando termine
+	if err := cmd.Wait(); err != nil {
+		// Si hay error, incluir la salida de stderr en el mensaje
+		if len(stderrBytes) > 0 {
+			return "", fmt.Errorf("%v: %s", err, string(stderrBytes))
+		}
+		return "", err
+	}
+
+	// Procesar la salida preservando los saltos de línea
+	output := string(stdoutBytes)
+
+	// Asegurarse de que la salida termine con un solo salto de línea
+	output = strings.TrimRight(output, "\n\r")
+	output = output + "\n"
+
+	return output, nil
 }
 
 // EJECUTA otros scripts
